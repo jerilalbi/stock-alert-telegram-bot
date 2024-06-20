@@ -1,6 +1,24 @@
 const marubozuStocks = require('./marubozuStocks');
 const telegram = require('./telegram')
 const eventEmitter = require('./eventEmitter');
+const express = require('express');
+
+const app = express();
+const PORT = 3000;
+
+app.get('/', (req, res)=>{
+    res.status(200);
+    res.send("Stock alert bot running");
+});
+
+app.listen(PORT, (error) =>{
+    if(!error){
+        console.log("Server running at "+ PORT)
+    }else{
+        console.log("Error occurred, server can't start", error);
+    }
+    }
+);
 
 let chatdID;
 const isStop = false;
