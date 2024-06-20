@@ -4,10 +4,10 @@ const bullishMarStocksUrl = "https://chartink.com/screener/bullish-marubozu-for-
 const bearishMarStocksUrl = "https://chartink.com/screener/bearish-marubozu-for-15min-timeframe";
 const testUrl = 'https://chartink.com/screener/15-minute-stock-breakouts'
 
-const isDebugging = true;
+const isDebugging = false;
 
-let bullishStockData = "Bullish Marubozu Stocks \n -------------------------  \n";
-let bearishStockData = "Bearish Marubozu Stocks \n -------------------------  \n";
+let bullishStockData;
+let bearishStockData;
 
 const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36';
 
@@ -40,7 +40,7 @@ async function getDataFromChartink(){
         });
       });
 
-    const bearishTableData = await bullishPage.evaluate(() => {
+    const bearishTableData = await bearishpage.evaluate(() => {
         const table = document.querySelector("[id='DataTables_Table_0']");
         if(!table){
             console.log("no data")
@@ -57,6 +57,7 @@ async function getDataFromChartink(){
       if(bullishTableData[1][1] == undefined){
         bullishStockData = "";
       } else{
+        bullishStockData = "Bullish Marubozu Stocks \n -------------------------  \n";
         bullishTableData.slice(1).map(data => {
           bullishStockData += 
           `
@@ -68,9 +69,9 @@ async function getDataFromChartink(){
       }
 
       if(bearishTableData[1][1] == undefined){
-        console.log("no bearish stocks");
         bearishStockData = "";
       } else{
+        bearishStockData = "Bearish Marubozu Stocks \n -------------------------  \n"
         bearishTableData.slice(1).map(data => {
           bearishStockData += 
           `
