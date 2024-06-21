@@ -63,6 +63,7 @@ async function tasksheldule(){
     const isWeekDay = currentDay>= 1 && currentDay <= 5;
     const isWithInTime = (currentHour === 9 && currentMinute >= 15) || (currentHour > 9 && currentHour < 15) || (currentHour >= 15 && currentMinute <= 0);
 
+    console.log(`${currentHour} : ${currentMinute}`);
     if(isWeekDay && isWithInTime){
         tasksheldule();
     }
