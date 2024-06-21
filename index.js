@@ -57,7 +57,7 @@ async function tasksheldule(){
 (function timeScheduler(){
     const date = new Date();
     const currentDay = date.getDay();
-    const currentHour = date.getHours() + 6;
+    const currentHour = date.getHours() + 5;
     const currentMinute = date.getMinutes() + 30; 
 
     const isWeekDay = currentDay>= 1 && currentDay <= 5;
