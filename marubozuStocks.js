@@ -10,6 +10,7 @@ let bullishStockData;
 let bearishStockData;
 
 const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36';
+const linuxUserAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36";
 
 async function getDataFromChartink(){
   try{
@@ -18,8 +19,8 @@ async function getDataFromChartink(){
     const bullishPage = await browser.newPage();
     const bearishpage = await browser.newPage();
     
-    await bullishPage.setUserAgent(userAgent);
-    await bearishpage.setUserAgent(userAgent);
+    await bullishPage.setUserAgent(linuxUserAgent);
+    await bearishpage.setUserAgent(linuxUserAgent);
 
     await bullishPage.goto(bullishMarStocksUrl,{ waitUntil: 'networkidle0' });
     await bearishpage.goto(bearishMarStocksUrl,{ waitUntil: 'networkidle0' });
