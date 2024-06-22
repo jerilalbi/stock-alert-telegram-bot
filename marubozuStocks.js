@@ -1,8 +1,9 @@
-const puppeteer = require('puppeteer-extra');
+const puppeteer = require('puppeteer');
+require('dotenv').config();
 
-const bullishMarStocksUrl = "https://chartink.com/screener/bullish-marubozu-for-15-min";
-const bearishMarStocksUrl = "https://chartink.com/screener/bearish-marubozu-for-15min-timeframe";
 const testUrl = 'https://chartink.com/screener/15-minute-stock-breakouts'
+const bullishMarStocksUrl = "https://chartink.com/screener/bullish-marubozu-for-15-min";
+const bearishMarStocksUrl = process.env.ISTEST ? testUrl : "https://chartink.com/screener/bearish-marubozu-for-15min-timeframe";
 
 const isDebugging = false;
 
@@ -15,7 +16,16 @@ const linuxUserAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTM
 async function getDataFromChartink(){
   try{
 
-    const browser = await puppeteer.launch({headless: !isDebugging});
+    const browser = await puppeteer.launch({
+      headless: !isDebugging,
+      executablePath: puppeteer.executablePath(),
+      args: [
+        "--disable-setuid-sandbox",
+        "--no-sandbox",
+        // "--single-process",
+        // "--no-zygote"
+      ]
+    });
     const bullishPage = await browser.newPage();
     const bearishpage = await browser.newPage();
     
@@ -24,8 +34,6 @@ async function getDataFromChartink(){
 
     await bullishPage.goto(bullishMarStocksUrl,{ waitUntil: 'networkidle0' });
     await bearishpage.goto(bearishMarStocksUrl,{ waitUntil: 'networkidle0' });
-
-    // await page.waitForSelector(selectors.resultTable);
 
     const bullishTableData = await bullishPage.evaluate(() => {
         const table = document.querySelector("[id='DataTables_Table_0']");

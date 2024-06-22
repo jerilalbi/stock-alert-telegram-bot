@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "node index",
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "npx puppeteer browsers install chrome"
   },
@@ -14,9 +14,9 @@
     "dotenv": "^16.4.5",
     "eventemitter3": "^5.0.1",
     "express": "^4.19.2",
+    "moment-timezone": "^0.5.45",
     "node-cron": "^3.0.3",
     "node-telegram-bot-api": "^0.66.0",
-    "puppeteer": "^22.10.0",
-    "puppeteer-extra": "^3.3.6"
+    "puppeteer": "^22.10.0"
   }
 }

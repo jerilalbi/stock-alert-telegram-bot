@@ -2,6 +2,9 @@ const marubozuStocks = require('./marubozuStocks');
 const telegram = require('./telegram')
 const eventEmitter = require('./eventEmitter');
 const express = require('express');
+const moment = require('moment-timezone');
+
+require('dotenv').config();
 
 const app = express();
 const PORT = 3000;
@@ -55,12 +58,14 @@ async function tasksheldule(){
 }
 
 (function timeScheduler(){
-    const date = new Date();
+    // const now = new Date().toISOString();
+    const now = moment().tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss');
+    const date = new Date(now);
     const currentDay = date.getDay();
-    const currentHour = date.getHours() + 5;
-    const currentMinute = date.getMinutes() + 30; 
+    const currentHour = date.getHours();
+    const currentMinute = date.getMinutes(); 
 
-    const isWeekDay = currentDay>= 1 && currentDay <= 5;
+    const isWeekDay = currentDay>= 1 && currentDay <= process.env.ENDDATE;
     const isWithInTime = (currentHour === 9 && currentMinute >= 15) || (currentHour > 9 && currentHour < 15) || (currentHour >= 15 && currentMinute <= 0);
 
     console.log(`${currentHour} : ${currentMinute}`);
