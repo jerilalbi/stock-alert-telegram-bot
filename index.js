@@ -14,6 +14,11 @@ app.get('/', (req, res)=>{
     res.send("Stock alert bot running");
 });
 
+app.get('/data',(req,res)=>{
+    res.status(200);
+    marubozuStocks.testData(res);
+})
+
 app.listen(PORT, (error) =>{
     if(!error){
         console.log("Server running at "+ PORT)
@@ -41,7 +46,7 @@ async function tasksheldule(){
             console.log("event stopped")
         })
     
-        const marubozuStockData = await marubozuStocks();
+        const marubozuStockData = await marubozuStocks.getDataFromChartink();
     
         if(marubozuStockData.bearishStockData.length !== 0 || marubozuStockData.bullishStockData.length !== 0){
             if(typeof chatdID !== 'undefined' && !isStop){

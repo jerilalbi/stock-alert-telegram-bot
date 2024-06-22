@@ -15,7 +15,6 @@ const linuxUserAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTM
 
 async function getDataFromChartink(){
   try{
-
     const browser = await puppeteer.launch({
       headless: !isDebugging,
       executablePath: puppeteer.executablePath(),
@@ -98,4 +97,42 @@ async function getDataFromChartink(){
   }
 }
 
-module.exports = getDataFromChartink;
+async function testData(res){
+  try{
+    const browser = await puppeteer.launch({
+      headless: !isDebugging,
+      executablePath: puppeteer.executablePath(),
+      args: [
+        "--disable-setuid-sandbox",
+        "--no-sandbox",
+      ]
+    });
+
+    const page = await browser.newPage();
+    
+    await page.setUserAgent(linuxUserAgent);
+
+    await page.goto(testUrl,{ waitUntil: 'networkidle0' });
+
+    const data = await page.evaluate(() => {
+        const table = document.querySelector("[id='DataTables_Table_0']");
+        if(!table){
+            console.log("no data")
+            return null
+        };
+
+        const rows = Array.from(table.querySelectorAll('tr'));
+        return rows.map(row => {
+          const cells = Array.from(row.querySelectorAll('td'));
+          return cells.map(cell => cell.textContent);
+        });
+      });
+    
+    res.send(data);
+
+  }catch(error){
+    res.send(error)
+  }
+}
+
+module.exports = { getDataFromChartink, testData };
