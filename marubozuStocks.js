@@ -31,8 +31,8 @@ async function getDataFromChartink(){
     await bullishPage.setUserAgent(linuxUserAgent);
     await bearishpage.setUserAgent(linuxUserAgent);
 
-    await bullishPage.goto(bullishMarStocksUrl,{ waitUntil: 'networkidle0' });
-    await bearishpage.goto(bearishMarStocksUrl,{ waitUntil: 'networkidle0' });
+    await bullishPage.goto(bullishMarStocksUrl,{ waitUntil: 'load',timeout: 0 });
+    await bearishpage.goto(bearishMarStocksUrl,{ waitUntil: 'load',timeout: 0 });
 
     const bullishTableData = await bullishPage.evaluate(() => {
         const table = document.querySelector("[id='DataTables_Table_0']");
@@ -112,7 +112,7 @@ async function testData(res){
     
     await page.setUserAgent(linuxUserAgent);
 
-    await page.goto(testUrl,{ waitUntil: 'networkidle0' });
+    await page.goto(testUrl,{ waitUntil: 'load',timeout: 0 });
 
     const data = await page.evaluate(() => {
         const table = document.querySelector("[id='DataTables_Table_0']");
