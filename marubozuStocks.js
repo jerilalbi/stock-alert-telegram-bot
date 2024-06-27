@@ -34,6 +34,9 @@ async function getDataFromChartink(){
     await bullishPage.goto(bullishMarStocksUrl,{ waitUntil: 'networkidle0',timeout: 0 });
     await bearishpage.goto(bearishMarStocksUrl,{ waitUntil: 'networkidle0',timeout: 0 });
 
+    bullishPage.setDefaultTimeout(60000)
+    bearishpage.setDefaultTimeout(60000)
+
     const bullishTableData = await bullishPage.evaluate(() => {
         const table = document.querySelector("[id='DataTables_Table_0']");
         if(!table){

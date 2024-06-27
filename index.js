@@ -71,7 +71,7 @@ async function tasksheldule(){
     const currentMinute = date.getMinutes(); 
 
     const isWeekDay = currentDay>= 1 && currentDay <= process.env.ENDDATE;
-    const isWithInTime = (currentHour === 9 && currentMinute >= 15) || (currentHour > 9 && currentHour < 15) || (currentHour >= 15 && currentMinute <= 0);
+    const isWithInTime = (currentHour === 9 && currentMinute >= 15) || (currentHour > 9 && currentHour < process.env.ENDTIME) || (currentHour >= process.env.ENDTIME && currentMinute <= process.env.ENDMIN);
 
     console.log(`${currentHour} : ${currentMinute}`);
     if(isWeekDay && isWithInTime){
