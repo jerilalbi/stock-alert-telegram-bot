@@ -39,6 +39,9 @@ async function getDataFromChartink(){
     bullishPage.setDefaultTimeout(60000)
     bearishpage.setDefaultTimeout(60000)
 
+    await bullishPage.waitForSelector("[id='DataTables_Table_0']",{timeout: 60000});
+    await bearishpage.waitForSelector("[id='DataTables_Table_0']",{timeout: 60000});
+
     const bullishTableData = await bullishPage.evaluate(() => {
         const table = document.querySelector("[id='DataTables_Table_0']");
         if(!table){
@@ -118,6 +121,8 @@ async function testData(res){
     await page.setUserAgent(linuxUserAgent);
 
     await page.goto(testUrl,{ waitUntil: 'networkidle0',timeout: 0 });
+
+    await page.waitForSelector("[id='DataTables_Table_0']",{timeout: 60000});
 
     const data = await page.evaluate(() => {
         const table = document.querySelector("[id='DataTables_Table_0']");
