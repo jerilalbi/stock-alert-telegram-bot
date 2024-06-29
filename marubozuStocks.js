@@ -1,3 +1,4 @@
+const { timeout } = require('puppeteer');
 const puppeteer = require('puppeteer');
 require('dotenv').config();
 
@@ -18,6 +19,7 @@ async function getDataFromChartink(){
     const browser = await puppeteer.launch({
       headless: "new",
       executablePath: puppeteer.executablePath(),
+      timeout: 60000,
       args: [
         "--disable-setuid-sandbox",
         "--no-sandbox",
