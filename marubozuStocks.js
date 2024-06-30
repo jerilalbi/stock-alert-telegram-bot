@@ -137,7 +137,7 @@ async function testData(res){
           return cells.map(cell => cell.textContent);
         });
       });
-    
+    await browser.close();
     res.send(data);
 
   }catch(error){

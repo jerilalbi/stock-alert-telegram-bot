@@ -35,6 +35,37 @@ function sendMessage({id,message}){
     }
 }
 
+function startWebhook(url){
+    bot.setWebHook(url);
+}
+
+function stopWebhook(){
+    bot.deleteWebHook().then(()=> {
+        bot.startPolling();
+    })
+}
+
+function getWebhookdetails(){
+    bot.getWebHookInfo().then((info) => {
+        console.log(info);
+    });
+}
+
+function errorHandingPollingError(){
+    bot.on('polling_error', (error) => {
+        console.error('Polling error:', error);
+    
+        if (error.code === 'ETELEGRAM' && error.response.body.error_code === 409) {
+            console.log('Conflict detected, restarting polling...');
+            bot.stopPolling().then(() => {
+                bot.startPolling();
+            }).catch(err => {
+                console.error('Error restarting polling:', err);
+            });
+        }
+    });
+}
+
 function stopMessage(id){
     sendMessage({id: id,message: "Alert closed for stock recommendation"});
     isStop = true;
@@ -42,4 +73,4 @@ function stopMessage(id){
     // bot.stopPolling().then(() => console.log("polling stopped")).catch((error) => console.error(error))
 }
 
-module.exports = {sendMessage, startMessage}
+module.exports = {sendMessage, startMessage, startWebhook, stopWebhook, getWebhookdetails, errorHandingPollingError}

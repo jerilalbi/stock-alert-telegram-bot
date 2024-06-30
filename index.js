@@ -8,6 +8,18 @@ require('dotenv').config();
 
 const app = express();
 const PORT = 3000;
+const url = "https://stock-alert-telegram-bot.onrender.com";
+
+telegram.startWebhook(`${url}/bot${process.env.TOKEN}`);
+
+app.listen(PORT, (error) =>{
+    if(!error){
+        console.log("Server running at "+ PORT)
+    }else{
+        console.log("Error occurred, server can't start", error);
+    }
+    }
+);
 
 app.get('/', (req, res)=>{
     res.status(200);
@@ -19,24 +31,23 @@ app.get('/data',(req,res)=>{
     marubozuStocks.testData(res);
 })
 
-app.listen(PORT, (error) =>{
-    if(!error){
-        console.log("Server running at "+ PORT)
-    }else{
-        console.log("Error occurred, server can't start", error);
-    }
-    }
-);
+app.post(`/bot${process.env.TOKEN}`, (req, res) => {
+    bot.processUpdate(req.body);
+    res.sendStatus(200);
+});
 
 let chatdID;
 const isStop = false;
 
 telegram.startMessage();
+telegram.errorHandingPollingError();
 
 console.log('Task scheduler is running...');
 
 async function tasksheldule(){
     try{
+        telegram.stopWebhook();
+
         eventEmitter.on("chatID",(id) =>{
             chatdID = id;
         })
@@ -74,6 +85,7 @@ async function tasksheldule(){
     const isWithInTime = (currentHour === 9 && currentMinute >= 15) || (currentHour > 9 && currentHour < process.env.ENDTIME) || (currentHour >= process.env.ENDTIME && currentMinute <= process.env.ENDMIN);
 
     console.log(`${currentHour} : ${currentMinute}`);
+
     if(isWeekDay && isWithInTime){
         tasksheldule();
     }
