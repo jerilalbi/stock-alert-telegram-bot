@@ -10,7 +10,6 @@ const app = express();
 const PORT = 3000;
 const url = "https://stock-alert-telegram-bot.onrender.com";
 
-telegram.startWebhook(`${url}/bot${process.env.TOKEN}`);
 
 app.listen(PORT, (error) =>{
     if(!error){
@@ -31,23 +30,17 @@ app.get('/data',(req,res)=>{
     marubozuStocks.testData(res);
 })
 
-app.post(`/bot${process.env.TOKEN}`, (req, res) => {
-    bot.processUpdate(req.body);
-    res.sendStatus(200);
-});
+telegram.initializeBot();
 
 let chatdID;
 const isStop = false;
 
 telegram.startMessage();
-telegram.errorHandingPollingError();
 
 console.log('Task scheduler is running...');
 
 async function tasksheldule(){
     try{
-        telegram.stopWebhook();
-
         eventEmitter.on("chatID",(id) =>{
             chatdID = id;
         })
@@ -61,7 +54,7 @@ async function tasksheldule(){
     
         if(marubozuStockData.bearishStockData.length !== 0 || marubozuStockData.bullishStockData.length !== 0){
             if(typeof chatdID !== 'undefined' && !isStop){
-                telegram.sendMessage({id: chatdID,message: marubozuStockData.bullishStockData+ "\n" + marubozuStockData.bearishStockData});
+                await telegram.sendMessage({id: chatdID,message: marubozuStockData.bullishStockData+ "\n" + marubozuStockData.bearishStockData});
                 marubozuStockData.bullishStockData = "Bullish Marubozu Stocks \n -------------------------  \n";
                 marubozuStockData.bearishStockData = "Bearish Marubozu Stocks \n -------------------------  \n";
             }

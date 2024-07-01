@@ -6,8 +6,6 @@ const testUrl = 'https://chartink.com/screener/15-minute-stock-breakouts'
 const bullishMarStocksUrl = "https://chartink.com/screener/bullish-marubozu-for-15-min";
 const bearishMarStocksUrl = process.env.ISTEST ? testUrl : "https://chartink.com/screener/bearish-marubozu-for-15min-timeframe";
 
-const isDebugging = false;
-
 let bullishStockData;
 let bearishStockData;
 
@@ -38,6 +36,22 @@ async function getDataFromChartink(){
 
     bullishPage.setDefaultTimeout(60000)
     bearishpage.setDefaultTimeout(60000)
+
+    bullishPage.on('error', err => {
+      console.log(`page error: ${err}`);
+    });
+
+    bearishpage.on('error', err => {
+      console.log(`page error: ${err}`);
+    });
+
+    bullishPage.on('framenavigated', frame => {
+      console.log('Frame navigated to:', frame.url());
+    });
+
+    bearishpage.on('framenavigated', frame => {
+      console.log('Frame navigated to:', frame.url());
+    });
 
     await bullishPage.waitForSelector("[id='DataTables_Table_0']",{timeout: 60000});
     await bearishpage.waitForSelector("[id='DataTables_Table_0']",{timeout: 60000});

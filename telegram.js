@@ -27,41 +27,40 @@ function startMessage(){
     
 }
 
-function sendMessage({id,message}){
+async function sendMessage({id,message}){
     try{
-        bot.sendMessage(id,message);
+        await bot.sendMessage(id,message);
     }catch(error){
         console.error(error);
     }
 }
 
-function startWebhook(url){
-    bot.setWebHook(url);
+async function initializeBot() {
+    try {
+        await bot.deleteWebHook();
+        console.log('Webhook deleted successfully.');
+        startPollingWithErrorHandling();
+    } catch (err) {
+        console.error('Error deleting webhook:', err);
+        setTimeout(initializeBot, 5000);
+    }
 }
 
-function stopWebhook(){
-    bot.deleteWebHook().then(()=> {
-        bot.startPolling();
-    })
-}
+function startPollingWithErrorHandling() {
+    bot.startPolling();
 
-function getWebhookdetails(){
-    bot.getWebHookInfo().then((info) => {
-        console.log(info);
-    });
-}
-
-function errorHandingPollingError(){
-    bot.on('polling_error', (error) => {
+    bot.on('polling_error', async (error) => {
         console.error('Polling error:', error);
-    
-        if (error.code === 'ETELEGRAM' && error.response.body.error_code === 409) {
+
+        if (error.code === 'ETELEGRAM' && error.response && error.response.statusCode === 409) {
             console.log('Conflict detected, restarting polling...');
-            bot.stopPolling().then(() => {
-                bot.startPolling();
-            }).catch(err => {
-                console.error('Error restarting polling:', err);
-            });
+            try {
+                await bot.stopPolling();
+                setTimeout(startPollingWithErrorHandling, 1000);
+            } catch (err) {
+                console.error('Error stopping polling:');
+                setTimeout(startPollingWithErrorHandling, 5000);
+            }
         }
     });
 }
@@ -73,4 +72,4 @@ function stopMessage(id){
     // bot.stopPolling().then(() => console.log("polling stopped")).catch((error) => console.error(error))
 }
 
-module.exports = {sendMessage, startMessage, startWebhook, stopWebhook, getWebhookdetails, errorHandingPollingError}
+module.exports = {sendMessage, startMessage, initializeBot}
