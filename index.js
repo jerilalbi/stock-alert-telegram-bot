@@ -11,21 +11,21 @@ const PORT = 3000;
 const url = "https://stock-alert-telegram-bot.onrender.com";
 
 
-app.listen(PORT, (error) =>{
-    if(!error){
-        console.log("Server running at "+ PORT)
-    }else{
+app.listen(PORT, (error) => {
+    if (!error) {
+        console.log("Server running at " + PORT)
+    } else {
         console.log("Error occurred, server can't start", error);
     }
-    }
+}
 );
 
-app.get('/', (req, res)=>{
+app.get('/', (req, res) => {
     res.status(200);
     res.send("Stock alert bot running");
 });
 
-app.get('/data',(req,res)=>{
+app.get('/data', (req, res) => {
     res.status(200);
     marubozuStocks.testData(res);
 })
@@ -39,50 +39,59 @@ telegram.startMessage();
 
 console.log('Task scheduler is running...');
 
-async function tasksheldule(){
-    try{
-        eventEmitter.on("chatID",(id) =>{
+async function tasksheldule() {
+    try {
+        eventEmitter.on("chatID", (id) => {
             chatdID = id;
         })
 
-        eventEmitter.on("isStop",(value) => {
+        eventEmitter.on("isStop", (value) => {
             isStop = value;
             console.log("event stopped")
         })
-    
-        const marubozuStockData = await marubozuStocks.getDataFromChartink();
-    
-        if(marubozuStockData.bearishStockData.length !== 0 || marubozuStockData.bullishStockData.length !== 0){
-            if(typeof chatdID !== 'undefined' && !isStop){
-                await telegram.sendMessage({id: chatdID,message: marubozuStockData.bullishStockData+ "\n" + marubozuStockData.bearishStockData});
+
+        await marubozuStocks.openBrowser();
+
+        const marubozuStockData = await marubozuStocks.getDataFromWeb();
+
+        if (marubozuStockData.bearishStockData.length !== 0 || marubozuStockData.bullishStockData.length !== 0) {
+            if (typeof chatdID !== 'undefined' && !isStop) {
+                await telegram.sendMessage({ id: chatdID, message: marubozuStockData.bullishStockData + "\n" + marubozuStockData.bearishStockData });
                 marubozuStockData.bullishStockData = "Bullish Marubozu Stocks \n -------------------------  \n";
                 marubozuStockData.bearishStockData = "Bearish Marubozu Stocks \n -------------------------  \n";
             }
         }
-        console.log( new Date().getMinutes())
-    }catch(error){
+        console.log(new Date().getMinutes())
+    } catch (error) {
         console.error(error);
     }
 
 }
 
-(function timeScheduler(){
-    // const now = new Date().toISOString();
-    const now = moment().tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss');
-    const date = new Date(now);
-    const currentDay = date.getDay();
-    const currentHour = date.getHours();
-    const currentMinute = date.getMinutes(); 
+(async function timeScheduler() {
+    try {
+        const now = moment().tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss');
+        const date = new Date(now);
+        const currentDay = date.getDay();
+        const currentHour = date.getHours();
+        const currentMinute = date.getMinutes();
 
-    const isWeekDay = currentDay>= 1 && currentDay <= process.env.ENDDATE;
-    const isWithInTime = (currentHour === 9 && currentMinute >= 15) || (currentHour > 9 && currentHour < process.env.ENDTIME) || (currentHour >= process.env.ENDTIME && currentMinute <= process.env.ENDMIN);
+        const isWeekDay = currentDay >= 1 && currentDay <= process.env.ENDDATE;
+        const isWithInTime = (currentHour === 9 && currentMinute >= 15) || (currentHour > 9 && currentHour < process.env.ENDTIME) || (currentHour >= process.env.ENDTIME && currentMinute <= process.env.ENDMIN);
 
-    console.log(`${currentHour} : ${currentMinute}`);
+        console.log(`${currentHour} : ${currentMinute}`);
 
-    if(isWeekDay && isWithInTime){
-        tasksheldule();
+        if (isWeekDay && isWithInTime) {
+            await tasksheldule();
+        } else {
+            await marubozuStocks.closeBrowser();
+        }
+
+        setTimeout(timeScheduler, 60 * 1000)
+    } catch (e) {
+        console.error("Error in timeScheduler:", e);
+        setTimeout(timeScheduler, 60 * 1000);
     }
 
-    setTimeout(timeScheduler,60 * 1000)
 })()
 

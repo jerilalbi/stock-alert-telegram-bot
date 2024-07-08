@@ -50,7 +50,6 @@ function startPollingWithErrorHandling() {
     bot.startPolling();
 
     bot.on('polling_error', async (error) => {
-        console.error('Polling error:', error);
 
         if (error.code === 'ETELEGRAM' && error.response && error.response.statusCode === 409) {
             console.log('Conflict detected, restarting polling...');
