@@ -24,12 +24,13 @@ async function openBrowser() {
   try {
     if (!isBrowserOpen) {
       browser = await puppeteer.launch({
-        headless: "new",
+        headless: false,
         executablePath: puppeteer.executablePath(),
         timeout: 60000,
         args: [
           "--disable-setuid-sandbox",
           "--no-sandbox",
+          "--disable-dev-shm-usage"
           // "--single-process",
           // "--no-zygote"
         ]
@@ -48,11 +49,15 @@ async function openBrowser() {
 
       isBrowserOpen = true;
 
-      bullishPage.on('error', err => {
+      bullishPage.on('error', async (err) => {
+        await browser.close();
+        isBrowserOpen = false;
         console.log(`page error: ${err}`);
       });
 
-      bearishPage.on('error', err => {
+      bearishPage.on('error', async (err) => {
+        await browser.close();
+        isBrowserOpen = false;
         console.log(`page error: ${err}`);
       });
 
@@ -76,6 +81,9 @@ async function closeBrowser() {
       await bullishPage.close();
       await bearishPage.close();
       await browser.close();
+      browser = null;
+      bullishPage = null;
+      bearishPage = null;
     }
 
   } catch (e) {
