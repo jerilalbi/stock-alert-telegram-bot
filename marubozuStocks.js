@@ -24,7 +24,7 @@ async function openBrowser() {
   try {
     if (!isBrowserOpen) {
       browser = await puppeteer.launch({
-        headless: false,
+        headless: true,
         executablePath: puppeteer.executablePath(),
         timeout: 60000,
         args: [

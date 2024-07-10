@@ -85,6 +85,7 @@ async function tasksheldule() {
             await tasksheldule();
         } else {
             await marubozuStocks.closeBrowser();
+            await telegram.stopPolling();
         }
 
         setTimeout(timeScheduler, 60 * 1000)
