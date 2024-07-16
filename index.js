@@ -50,12 +50,13 @@ async function tasksheldule() {
             console.log("event stopped")
         })
 
-        await marubozuStocks.openBrowser();
+        // await marubozuStocks.openBrowser();
 
-        const marubozuStockData = await marubozuStocks.getDataFromWeb();
+        const marubozuStockData = await marubozuStocks.getDataFromChartink();
 
         if (marubozuStockData.bearishStockData.length !== 0 || marubozuStockData.bullishStockData.length !== 0) {
             if (typeof chatdID !== 'undefined' && !isStop) {
+                console.log("stocks send");
                 await telegram.sendMessage({ id: chatdID, message: marubozuStockData.bullishStockData + "\n" + marubozuStockData.bearishStockData });
                 marubozuStockData.bullishStockData = "Bullish Marubozu Stocks \n -------------------------  \n";
                 marubozuStockData.bearishStockData = "Bearish Marubozu Stocks \n -------------------------  \n";
@@ -77,21 +78,20 @@ async function tasksheldule() {
         const currentMinute = date.getMinutes();
 
         const isWeekDay = currentDay >= 1 && currentDay <= process.env.ENDDATE;
-        const isWithInTime = (currentHour === 9 && currentMinute >= 15) || (currentHour > 9 && currentHour < process.env.ENDTIME) || (currentHour >= process.env.ENDTIME && currentMinute <= process.env.ENDMIN);
+        const isWithInTime = (currentHour === 9 && currentMinute >= 15) || (currentHour > 9 && currentHour < process.env.ENDTIME) || (currentHour == process.env.ENDTIME && currentMinute <= process.env.ENDMIN);
 
         console.log(`${currentHour} : ${currentMinute}`);
 
         if (isWeekDay && isWithInTime) {
-            await tasksheldule();
-        } else {
-            await marubozuStocks.closeBrowser();
-            await telegram.stopPolling();
+            tasksheldule();
         }
 
-        setTimeout(timeScheduler, 60 * 1000)
+        // await marubozuStocks.closeBrowser();
+
+        setTimeout(timeScheduler, 60 * (1000 * process.env.RUNGAP))
     } catch (e) {
         console.error("Error in timeScheduler:", e);
-        setTimeout(timeScheduler, 60 * 1000);
+        setTimeout(timeScheduler, 60 * (1000 * process.env.RUNGAP));
     }
 
 })()

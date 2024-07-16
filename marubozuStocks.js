@@ -26,7 +26,7 @@ async function openBrowser() {
       browser = await puppeteer.launch({
         headless: true,
         executablePath: puppeteer.executablePath(),
-        timeout: 60000,
+        timeout: 0,
         args: [
           "--disable-setuid-sandbox",
           "--no-sandbox",
@@ -93,10 +93,10 @@ async function closeBrowser() {
 
 async function getDataFromWeb() {
   try {
-    const bullRunScanBtn = await bullishPage.waitForSelector(selectors.runBtnSelector, { timeout: 60000 })
+    const bullRunScanBtn = await bullishPage.waitForSelector(selectors.runBtnSelector, { timeout: 0 })
     bullRunScanBtn.click();
 
-    await bullishPage.waitForSelector(selectors.dataTableSelector, { timeout: 60000 });
+    await bullishPage.waitForSelector(selectors.dataTableSelector, { timeout: 0 });
     const bullRows = await bullishPage.$$(`${selectors.dataTableSelector} tbody tr`)
 
     if (bullRows.length > 1) {
@@ -119,10 +119,10 @@ async function getDataFromWeb() {
       bullishStockData = "";
     }
 
-    const bearRunScanBtn = await bearishPage.waitForSelector(selectors.runBtnSelector, { timeout: 60000 })
+    const bearRunScanBtn = await bearishPage.waitForSelector(selectors.runBtnSelector, { timeout: 0 })
     bearRunScanBtn.click();
 
-    await bearishPage.waitForSelector(selectors.dataTableSelector, { timeout: 60000 });
+    await bearishPage.waitForSelector(selectors.dataTableSelector, { timeout: 0 });
     const bearRows = await bearishPage.$$(`${selectors.dataTableSelector} tbody tr`)
 
     if (bearRows.length > 1) {
@@ -258,43 +258,69 @@ async function getDataFromChartink() {
 
 async function testData(res) {
   try {
-    const browser = await puppeteer.launch({
-      headless: "new",
-      executablePath: puppeteer.executablePath(),
-      args: [
-        "--disable-setuid-sandbox",
-        "--no-sandbox",
-      ]
-    });
+    let testVal;
+    if (isBrowserOpen) {
+      console.log("broswer already open");
+      const testRunBtn = await bearishPage.waitForSelector(selectors.runBtnSelector, { timeout: 60000 })
+      testRunBtn.click();
 
-    const page = await browser.newPage();
+      await bearishPage.waitForSelector(selectors.dataTableSelector, { timeout: 60000 });
+      const testRows = await bearishPage.$$(`${selectors.dataTableSelector} tbody tr`)
 
-    await page.setUserAgent(linuxUserAgent);
-
-    await page.goto(testUrl, { waitUntil: 'networkidle0', timeout: 0 });
-
-    await page.waitForSelector("[id='DataTables_Table_0']", { timeout: 60000 });
-
-    const data = await page.evaluate(() => {
-      const table = document.querySelector("[id='DataTables_Table_0']");
-      if (!table) {
-        console.log("no data")
-        return null
-      };
-
-      const rows = Array.from(table.querySelectorAll('tr'));
-      return rows.map(row => {
-        const cells = Array.from(row.querySelectorAll('td'));
-        return cells.map(cell => cell.textContent);
+      if (testRows.length > 1) {
+        for (let row of testRows) {
+          const cells = await row.$$('td');
+          const name = await cells[1].evaluate(cell => cell.textContent.trim());
+          testVal +=
+            `
+          ${name}
+          \n
+          `
+        }
+      } else {
+        testVal = "no data is fetched";
+      }
+      res.send(testVal + "browser already open");
+    } else {
+      const browser = await puppeteer.launch({
+        headless: "new",
+        executablePath: puppeteer.executablePath(),
+        args: [
+          "--disable-setuid-sandbox",
+          "--no-sandbox",
+        ]
       });
-    });
-    await browser.close();
-    res.send(data);
 
+      console.log("browser not already open");
+
+      const page = await browser.newPage();
+
+      await page.setUserAgent(linuxUserAgent);
+
+      await page.goto(testUrl, { waitUntil: 'networkidle0', timeout: 0 });
+
+      await page.waitForSelector("[id='DataTables_Table_0']", { timeout: 60000 });
+
+      const data = await page.evaluate(() => {
+        const table = document.querySelector("[id='DataTables_Table_0']");
+        if (!table) {
+          console.log("no data")
+          return null
+        };
+
+        const rows = Array.from(table.querySelectorAll('tr'));
+        return rows.map(row => {
+          const cells = Array.from(row.querySelectorAll('td'));
+          return cells.map(cell => cell.textContent);
+        });
+      });
+      await browser.close();
+      res.send(data);
+    }
   } catch (error) {
     res.send(error)
   }
 }
 
-// module.exports = { getDataFromChartink, testData };
-module.exports = { openBrowser, getDataFromWeb, closeBrowser };
+module.exports = { getDataFromChartink, testData };
+// module.exports = { openBrowser, getDataFromWeb, closeBrowser, testData };
