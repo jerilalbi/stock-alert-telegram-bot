@@ -3,7 +3,7 @@ require('dotenv').config();
 
 const testUrl = 'https://chartink.com/screener/15-minute-stock-breakouts'
 const bullishMarStocksUrl = "https://chartink.com/screener/bullish-marubozu-for-15-min";
-const bearishMarStocksUrl = process.env.ISTEST ? testUrl : "https://chartink.com/screener/bearish-marubozu-for-15min-timeframe";
+const bearishMarStocksUrl = "https://chartink.com/screener/bearish-marubozu-for-15min-timeframe";
 
 let isBrowserOpen = false;
 let browser;
@@ -169,7 +169,7 @@ async function getDataFromChartink() {
     await bearishpage.setUserAgent(linuxUserAgent);
 
     await bullishPage.goto(bullishMarStocksUrl, { waitUntil: 'networkidle0', timeout: 0 });
-    await bearishpage.goto(bearishMarStocksUrl, { waitUntil: 'networkidle0', timeout: 0 });
+    await bearishpage.goto(process.env.ISTEST ? bearishMarStocksUrl : testUrl, { waitUntil: 'networkidle0', timeout: 0 });
 
     bullishPage.setDefaultTimeout(60000)
     bearishpage.setDefaultTimeout(60000)
