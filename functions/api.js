@@ -12,7 +12,7 @@ const router = express.Router();
 const PORT = 3000;
 
 router.get('/', (req, res) => {
-    res.send('Stock bot is running..');
+    res.send(`Stock bot is running.. ${process.env.ENDDATE}`);
 });
 
 router.get('/data', (req, res) => {

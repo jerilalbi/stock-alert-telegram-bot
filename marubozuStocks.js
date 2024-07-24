@@ -19,7 +19,7 @@ const linuxUserAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTM
 async function getDataFromChartink() {
   try {
     const browser = await puppeteer.launch({
-      headless: false,
+      headless: true,
       executablePath: process.env.CHROME_PATH || await chrome.executablePath,
       timeout: 60000,
       // args: [
@@ -127,15 +127,10 @@ async function getDataFromChartink() {
 async function testData(res) {
   try {
     const browser = await puppeteer.launch({
-      headless: "new",
-      executablePath: puppeteer.executablePath(),
-      args: [
-        "--disable-setuid-sandbox",
-        "--no-sandbox",
-      ]
+      headless: true,
+      executablePath: process.env.CHROME_PATH || await chrome.executablePath,
+      args: chrome.args,
     });
-
-    console.log("browser not already open");
 
     const page = await browser.newPage();
 
