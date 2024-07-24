@@ -1,5 +1,8 @@
-const puppeteer = require('puppeteer-core');
-const chrome = require('chrome-aws-lambda');
+const puppeteerExtra = require('puppeteer-extra');
+const puppeteer = require('puppeteer');
+const chromium = require('@sparticuz/chromium');
+const StealthPlugin = require('puppeteer-extra-plugin-stealth')
+
 require('dotenv').config();
 
 const testUrl = 'https://chartink.com/screener/15-minute-stock-breakouts'
@@ -18,17 +21,29 @@ const linuxUserAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTM
 
 async function getDataFromChartink() {
   try {
-    const browser = await puppeteer.launch({
-      headless: true,
-      executablePath: process.env.CHROME_PATH || await chrome.executablePath,
-      timeout: 60000,
+    puppeteerExtra.use(StealthPlugin())
+    const browser = await puppeteerExtra.launch({
+      // headless: true,
+      // executablePath: await chrome.executablePath,
+      // timeout: 60000,
       // args: [
       //   "--disable-setuid-sandbox",
       //   "--no-sandbox",
       //   // "--single-process",
       //   // "--no-zygote"
       // ]
-      args: chrome.args
+      // args: chrome.args
+      args: process.env.ISDEBUG ?
+        [
+          "--disable-setuid-sandbox",
+          "--no-sandbox",
+          // "--single-process",
+          // "--no-zygote"
+        ] : chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: process.env.ISDEBUG ? puppeteer.executablePath() : await chromium.executablePath(),
+      headless: chromium.headless,
+      ignoreHTTPSErrors: true,
     });
     const bullishPage = await browser.newPage();
     const bearishpage = await browser.newPage();
@@ -126,10 +141,22 @@ async function getDataFromChartink() {
 
 async function testData(res) {
   try {
-    const browser = await puppeteer.launch({
-      headless: true,
-      executablePath: process.env.CHROME_PATH || await chrome.executablePath,
-      args: chrome.args,
+    const browser = await puppeteerExtra.launch({
+      // headless: true,
+      // executablePath: await chrome.executablePath,
+      // args: chrome.args,
+      // timeout: 0,
+      args: process.env.ISDEBUG ?
+        [
+          "--disable-setuid-sandbox",
+          "--no-sandbox",
+          // "--single-process",
+          // "--no-zygote"
+        ] : chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: process.env.ISDEBUG ? puppeteer.executablePath() : await chromium.executablePath(),
+      headless: chromium.headless,
+      ignoreHTTPSErrors: true,
     });
 
     const page = await browser.newPage();
@@ -138,7 +165,7 @@ async function testData(res) {
 
     await page.goto(testUrl, { waitUntil: 'networkidle0', timeout: 0 });
 
-    await page.waitForSelector("[id='DataTables_Table_0']", { timeout: 60000 });
+    await page.waitForSelector("[id='DataTables_Table_0']", { timeout: 0 });
 
     const data = await page.evaluate(() => {
       const table = document.querySelector("[id='DataTables_Table_0']");
@@ -159,6 +186,4 @@ async function testData(res) {
     res.send(error)
   }
 }
-
 module.exports = { getDataFromChartink, testData };
-// module.exports = { openBrowser, getDataFromWeb, closeBrowser, testData };

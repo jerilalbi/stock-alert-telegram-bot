@@ -9,7 +9,6 @@ require('dotenv').config();
 
 const app = express();
 const router = express.Router();
-const PORT = 3000;
 
 router.get('/', (req, res) => {
     res.send(`Stock bot is running.. ${process.env.ENDDATE}`);
@@ -61,8 +60,6 @@ async function tasksheldule() {
             console.log("event stopped")
         })
 
-        // await marubozuStocks.openBrowser();
-
         const marubozuStockData = await marubozuStocks.getDataFromChartink();
 
         if (marubozuStockData.bearishStockData.length !== 0 || marubozuStockData.bullishStockData.length !== 0) {
@@ -80,7 +77,7 @@ async function tasksheldule() {
 
 }
 
-(async function timeScheduler() {
+exports.handler = async (event,context) => {
     try {
         const now = moment().tz('Asia/Kolkata').format('YYYY-MM-DD HH:mm:ss');
         const date = new Date(now);
@@ -103,7 +100,7 @@ async function tasksheldule() {
         setTimeout(timeScheduler, 60 * (1000 * process.env.RUNGAP));
     }
 
-})()
+}
 
 module.exports.handler = serverless(app);
 

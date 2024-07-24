@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "chrome-aws-lambda": "^10.1.0",
+    "@sparticuz/chromium": "^110.0.1",
     "dotenv": "^16.4.5",
     "eventemitter3": "^5.0.1",
     "express": "^4.19.2",
@@ -20,7 +20,10 @@
     "netlify-lambda": "^2.0.16",
     "node-cron": "^3.0.3",
     "node-telegram-bot-api": "^0.66.0",
-    "puppeteer-core": "^19.0.0",
+    "puppeteer": "^22.13.1",
+    "puppeteer-core": "19.6",
+    "puppeteer-extra": "^3.3.4",
+    "puppeteer-extra-plugin-stealth": "^2.11.1",
     "serverless-http": "^3.2.0"
   }
 }
