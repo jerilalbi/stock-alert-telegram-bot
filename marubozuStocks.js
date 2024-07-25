@@ -1,7 +1,8 @@
 const puppeteerExtra = require('puppeteer-extra');
 const puppeteer = require('puppeteer');
 const chromium = require('@sparticuz/chromium');
-const StealthPlugin = require('puppeteer-extra-plugin-stealth')
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+const { timeout } = require('puppeteer');
 
 require('dotenv').config();
 
@@ -21,7 +22,8 @@ const linuxUserAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTM
 
 async function getDataFromChartink() {
   try {
-    puppeteerExtra.use(StealthPlugin())
+    puppeteerExtra.use(StealthPlugin());
+
     const browser = await puppeteerExtra.launch({
       // headless: true,
       // executablePath: await chrome.executablePath,
@@ -44,6 +46,7 @@ async function getDataFromChartink() {
       executablePath: process.env.ISDEBUG ? puppeteer.executablePath() : await chromium.executablePath(),
       headless: chromium.headless,
       ignoreHTTPSErrors: true,
+      timeout: 0,
     });
     const bullishPage = await browser.newPage();
     const bearishpage = await browser.newPage();
@@ -54,8 +57,8 @@ async function getDataFromChartink() {
     await bullishPage.goto(bullishMarStocksUrl, { waitUntil: 'networkidle0', timeout: 0 });
     await bearishpage.goto(process.env.ISTEST ? bearishMarStocksUrl : testUrl, { waitUntil: 'networkidle0', timeout: 0 });
 
-    bullishPage.setDefaultTimeout(60000)
-    bearishpage.setDefaultTimeout(60000)
+    bullishPage.setDefaultTimeout(0)
+    bearishpage.setDefaultTimeout(0)
 
     bullishPage.on('error', err => {
       console.log(`page error: ${err}`);
@@ -141,6 +144,8 @@ async function getDataFromChartink() {
 
 async function testData(res) {
   try {
+    puppeteerExtra.use(StealthPlugin())
+
     const browser = await puppeteerExtra.launch({
       // headless: true,
       // executablePath: await chrome.executablePath,
@@ -157,6 +162,7 @@ async function testData(res) {
       executablePath: process.env.ISDEBUG ? puppeteer.executablePath() : await chromium.executablePath(),
       headless: chromium.headless,
       ignoreHTTPSErrors: true,
+      timeout: 0,
     });
 
     const page = await browser.newPage();
