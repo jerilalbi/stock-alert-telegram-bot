@@ -11,13 +11,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@sparticuz/chromium": "^110.0.1",
     "dotenv": "^16.4.5",
     "eventemitter3": "^5.0.1",
     "express": "^4.19.2",
     "moment-timezone": "^0.5.45",
-    "netlify-cli": "^17.33.4",
-    "netlify-lambda": "^2.0.16",
     "node-cron": "^3.0.3",
     "node-telegram-bot-api": "^0.66.0",
     "puppeteer": "^22.13.1",

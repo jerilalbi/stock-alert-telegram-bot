@@ -1,6 +1,5 @@
 const puppeteerExtra = require('puppeteer-extra');
 const puppeteer = require('puppeteer');
-const chromium = require('@sparticuz/chromium');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
 const { timeout } = require('puppeteer');
 
@@ -21,33 +20,21 @@ const selectors = {
 const linuxUserAgent = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.69 Safari/537.36";
 
 async function getDataFromChartink() {
-  try {
-    puppeteerExtra.use(StealthPlugin());
+  puppeteerExtra.use(StealthPlugin());
 
-    const browser = await puppeteerExtra.launch({
-      // headless: true,
-      // executablePath: await chrome.executablePath,
-      // timeout: 60000,
-      // args: [
-      //   "--disable-setuid-sandbox",
-      //   "--no-sandbox",
-      //   // "--single-process",
-      //   // "--no-zygote"
-      // ]
-      // args: chrome.args
-      args: process.env.ISDEBUG ?
-        [
-          "--disable-setuid-sandbox",
-          "--no-sandbox",
-          // "--single-process",
-          // "--no-zygote"
-        ] : chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: process.env.ISDEBUG ? puppeteer.executablePath() : await chromium.executablePath(),
-      headless: chromium.headless,
-      ignoreHTTPSErrors: true,
-      timeout: 0,
-    });
+  const browser = await puppeteerExtra.launch({
+    args: [
+      "--disable-setuid-sandbox",
+      "--no-sandbox",
+      "--single-process",
+      "--no-zygote"
+    ],
+    executablePath: process.env.NODE_ENV === 'production' ? process.env.PUPPETEER_EXECUTABLE_PATH : puppeteer.executablePath(),
+    headless: true,
+    ignoreHTTPSErrors: true,
+    timeout: 0,
+  });
+  try {
     const bullishPage = await browser.newPage();
     const bearishpage = await browser.newPage();
 
@@ -139,32 +126,27 @@ async function getDataFromChartink() {
     return { bullishStockData, bearishStockData };
   } catch (error) {
     console.error(error);
+  } finally {
+    await browser.close();
   }
 }
 
 async function testData(res) {
+  puppeteerExtra.use(StealthPlugin())
+
+  const browser = await puppeteerExtra.launch({
+    args: [
+      "--disable-setuid-sandbox",
+      "--no-sandbox",
+      "--single-process",
+      "--no-zygote"
+    ],
+    executablePath: process.env.NODE_ENV === 'production' ? process.env.PUPPETEER_EXECUTABLE_PATH : puppeteer.executablePath(),
+    headless: true,
+    ignoreHTTPSErrors: true,
+    timeout: 0,
+  });
   try {
-    puppeteerExtra.use(StealthPlugin())
-
-    const browser = await puppeteerExtra.launch({
-      // headless: true,
-      // executablePath: await chrome.executablePath,
-      // args: chrome.args,
-      // timeout: 0,
-      args: process.env.ISDEBUG ?
-        [
-          "--disable-setuid-sandbox",
-          "--no-sandbox",
-          // "--single-process",
-          // "--no-zygote"
-        ] : chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: process.env.ISDEBUG ? puppeteer.executablePath() : await chromium.executablePath(),
-      headless: chromium.headless,
-      ignoreHTTPSErrors: true,
-      timeout: 0,
-    });
-
     const page = await browser.newPage();
 
     await page.setUserAgent(linuxUserAgent);
@@ -186,10 +168,11 @@ async function testData(res) {
         return cells.map(cell => cell.textContent);
       });
     });
-    await browser.close();
     res.send(data);
   } catch (error) {
     res.send(error)
+  } finally {
+    await browser.close();
   }
 }
 module.exports = { getDataFromChartink, testData };
